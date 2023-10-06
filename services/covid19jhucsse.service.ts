@@ -23,7 +23,11 @@ import {
 
 export class Covid19JhucsseService extends Rxios {
   constructor() {
-    super({ baseURL: process.env.SWAGGER_JSON_DOCS });
+    super({
+      baseURL: global.window
+        ? process.env.NEXT_PUBLIC_API_URL
+        : process.env.API_URL,
+    });
   }
 
   /** Get COVID-19 totals for all countries and their provinces **/

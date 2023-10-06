@@ -5,7 +5,11 @@ import { Therapeutics } from "./data-contracts";
 
 export class Covid19TherapeuticsService extends Rxios {
   constructor() {
-    super({ baseURL: process.env.SWAGGER_JSON_DOCS });
+    super({
+      baseURL: global.window
+        ? process.env.NEXT_PUBLIC_API_URL
+        : process.env.API_URL,
+    });
   }
 
   /** Get therapeutics trial data from RAPS (Regulatory Affairs Professional Society). Specifically published by Jeff Craven at https://www.raps.org/news-and-articles/news-articles/2020/3/covid-19-therapeutics-tracker **/

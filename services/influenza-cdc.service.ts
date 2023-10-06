@@ -9,7 +9,11 @@ import {
 
 export class InfluenzaCdcService extends Rxios {
   constructor() {
-    super({ baseURL: process.env.SWAGGER_JSON_DOCS });
+    super({
+      baseURL: global.window
+        ? process.env.NEXT_PUBLIC_API_URL
+        : process.env.API_URL,
+    });
   }
 
   /** Get Influenza-like-illness data for the 2019 and 2020 outbreaks from the US Center for Disease Control **/

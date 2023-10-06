@@ -13,7 +13,11 @@ import {
 
 export class Covid19NytService extends Rxios {
   constructor() {
-    super({ baseURL: process.env.SWAGGER_JSON_DOCS });
+    super({
+      baseURL: global.window
+        ? process.env.NEXT_PUBLIC_API_URL
+        : process.env.API_URL,
+    });
   }
 
   /** Get COVID-19 time series data for all states, with an entry for each day since the pandemic began **/

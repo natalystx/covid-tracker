@@ -25,12 +25,6 @@ export abstract class Rxios {
   };
 
   private observableRequest<T>(config: RxiosConfig) {
-    this.httpClient.interceptors.response.use(
-      (response) => response,
-      (err) => {
-        return Promise.reject(err);
-      },
-    );
     const request = this.httpClient.request<T>(this.interceptor(config));
 
     return new Observable<T>((subscriber) => {

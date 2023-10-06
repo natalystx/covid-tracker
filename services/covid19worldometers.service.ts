@@ -21,7 +21,11 @@ import {
 
 export class Covid19WorldometersService extends Rxios {
   constructor() {
-    super({ baseURL: process.env.SWAGGER_JSON_DOCS });
+    super({
+      baseURL: global.window
+        ? process.env.NEXT_PUBLIC_API_URL
+        : process.env.API_URL,
+    });
   }
 
   /** Get global COVID-19 totals for today, yesterday and two days ago **/

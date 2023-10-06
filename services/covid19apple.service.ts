@@ -9,7 +9,11 @@ import {
 
 export class Covid19AppleService extends Rxios {
   constructor() {
-    super({ baseURL: process.env.SWAGGER_JSON_DOCS });
+    super({
+      baseURL: global.window
+        ? process.env.NEXT_PUBLIC_API_URL
+        : process.env.API_URL,
+    });
   }
 
   /** Get a list of supported countries for Apple mobility data **/
