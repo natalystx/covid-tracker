@@ -1,0 +1,24 @@
+import { Observable } from 'rxjs';
+import Rxios from "../core/rxios";
+
+<%
+const { utils, route, config, modelTypes } = it;
+const { _, classNameCase, require } = utils;
+const apiClassName = classNameCase(route.moduleName);
+const routes = route.routes;
+const dataContracts = _.map(modelTypes, 'name');
+%>
+<% if (dataContracts.length) { %>
+import { <%~ dataContracts.join(', ') %> } from './<%~ config.fileNames.dataContracts %>'
+<% } %>
+
+export class <%= apiClassName %>Service extends Rxios {
+
+  constructor() {
+    super({ baseURL: process.env.SWAGGER_JSON_DOCS});
+  }
+    
+    <% routes.forEach((route) => { %>
+        <%~ includeFile('./procedure-call.eta', { route, utils, config }) %>
+    <% }) %>
+}

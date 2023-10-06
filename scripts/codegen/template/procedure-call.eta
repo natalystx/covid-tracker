@@ -1,0 +1,87 @@
+<%
+const { utils, route, config } = it;
+const { _, getInlineParseContent, getParseContent, parseSchema, getComponentByRef, require } = utils;
+const { parameters, path, method, payload, params, query, formData, security, requestParams } = route.request;
+const { type, errorType, contentTypes } = route.response;
+const routeDocs = includeFile("./route-docs", { config, route, utils });
+const queryName = (query && query.name) || "query";
+const pathParams = _.values(parameters);
+const argToTmpl = ({ name, optional, type }) => `${name}${optional ? '?' : ''}: ${type}`;
+
+const rawWrapperArgs = config.extractRequestParams ?
+    _.compact([
+        requestParams && {
+          name: pathParams.length ? `{ ${_.join(_.map(pathParams, "name"), ", ")}, ...${queryName} }` : queryName,
+          optional: false,
+          type: getInlineParseContent(requestParams),
+        },
+        ...(!requestParams ? pathParams : []),
+        payload,
+    ]) :
+    _.compact([
+        ...pathParams,
+        query,
+        payload,
+    ])
+
+const wrapperArgs = _
+    // Sort by optionality
+    .sortBy(rawWrapperArgs, [function(o) { return o.optional }])
+    .map(argToTmpl)
+    .join(', ')
+
+const bodyModeTmpl = formData
+    ? 'BodyType.FormData'
+    : security
+        ? 'BodyType.Json'
+        : null
+
+const securityTmpl = security ? 'true' : null;
+const pathTmpl = '`' + path + '`';
+
+
+
+
+
+
+const queryParams = query != null? query.name: null;
+const payloadType = payload !=null? payload.type : 'any';
+
+const argArr = () => {
+  const requestType = method.toLowerCase()
+  if (requestType === 'get') {
+    if (queryParams) {
+      return [pathTmpl, `${queryParams} as unknown as Record<string, unknown>`]
+    } else {
+      return [pathTmpl]
+    }
+  } else if (requestType === 'delete') {
+    return [pathTmpl]
+  } else {
+    const data = _.get(payload, "name")
+    if (data) {
+      return [pathTmpl, `${data} as unknown as Record<string, unknown>`]
+    } else {
+      return [pathTmpl, 'null']
+    }
+  }
+}
+
+let requestArgs = argArr()
+  .reverse()
+  .reduce((args, arg) => {
+    arg = arg?.replace('null', '{}')
+    return args.concat([arg])
+  }, [])
+  .reverse()
+  .join(', ')
+
+requestArgs = formData ? requestArgs + ", { headers: { 'Content-Type': 'multipart/form-data' } }" : requestArgs;
+
+%>
+
+<%
+%>
+/** <%~route.raw.summary%> **/
+<%~ route.routeName.usage %> = (<%~ wrapperArgs %>):Observable<<%~ type %>> =>
+  this.<%~ _.lowerCase(method) %><<%~ type %>>(<%~ requestArgs %>)
